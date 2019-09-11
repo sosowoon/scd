@@ -1,0 +1,23 @@
+{
+"type": "FeatureCollection",
+"name": "abc",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": 
+	"Feature", 
+	"properties": { "code": "11010", "name": "종로구", "value": "0" }, 
+	"geometry": 
+		{ "type": "MultiPolygon", 
+			"coordinates": 
+				[ [ [ [ 126.974680860533269, 37.629805433945975 ], 
+				      [ 126.994103514280809, 37.631120879367245 ], 
+				      [ 126.995393473277872, 37.630249563038412 ] ] ] ]} },
+{ "type": 
+	"Feature", 
+	"properties": { "code": "11090", "name": "강북구", "value": "0" }, 
+	"geometry": 
+		{ "type": "MultiPolygon", 
+			"coordinates": [ [ [ [ 127.017926102073318, 37.670752615772699 ], 
+					[ 127.176689032440763, 37.579069342290886 ] ] ] ] } }
+]
+}
