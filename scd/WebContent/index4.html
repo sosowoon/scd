@@ -57,8 +57,9 @@
 			removable : true
 		});
 		// 다각형을 생성하고 이벤트를 등록하는 함수입니다
-		var path = []; //폴리곤 그려줄 path
 		function displayArea(coordinates, name) {
+
+			var path = []; //폴리곤 그려줄 path
 			var points = []; //중심좌표 구하기 위한 지역구 좌표들
 			$.each(coordinates[0], function(index, coordinate) {
 				$.each(coordinate, function(i, coordinateData) {
