@@ -206,14 +206,84 @@
                 $('#exampleFormControlSelect2').append(option);
             }
 
-        } 
+        }
+         function itemChange2() {
+
+             var year_quarter = ['1', '2', '3', '4'];
+             var year_quarter2 = ['1'];
+
+             var selectItem = $("#exampleFormControlSelect3").val();
+
+             var changeItem;
+
+             if (selectItem == '2019') {
+                 changeItem = year_quarter2;
+             } else {
+                 changeItem = year_quarter;
+             }
+
+             $('#exampleFormControlSelect4').empty();
+
+             for (var count = 0; count < changeItem.length; count++) {
+                 var option = $("<option>" + changeItem[count] + "</option>");
+                 $('#exampleFormControlSelect4').append(option);
+             }
+
+         }
+         function getTable() {
+             var year = $("#exampleFormControlSelect3").val();
+             var quarter = $("#exampleFormControlSelect4").val();
+             $.ajax({
+                 url: "gettable.jsp",
+                 data: {
+                     year: year,
+                     quarter: quarter
+                 },
+                 dataType: "json",
+                 success: function(result) {
+                	 var t = $('#dataTable').DataTable();
+                     if(result.length > 0){
+                    	 $(result).each(function(i, val){
+                      			var year = val.year;
+                      			var quarter = val.quarter;
+                      			var sigungucodename = val.sigungucodename;
+                      			var ciname = val.ciname;
+                      			 t.row.add( [
+                      				year,
+                      				quarter,
+                      				sigungucodename,
+                      				ciname
+                      	        ] ).draw( false );
+                    	 });
+                     } 
+                 }
+             });
+             $('#dataTable').DataTable( {
+                 scrollY:        '50vh',
+                 scrollCollapse: true,
+                 paging:         true
+             } );
+         }
         $(function() {
         	getpolygon();
-            $('.form-control').on('change', function() {
-                getpolygon();
-            });
+        	getTable();
              $('#exampleFormControlSelect1').on('change', function() {
                 itemChange();
+                getpolygon();
+            }); 
+             $('#exampleFormControlSelect2').on('change', function() {
+                getpolygon();
+            }); 
+             $('#exampleFormControlSelect3').on('change', function() {
+                itemChange2();
+                var t = $('#dataTable').DataTable();
+                t.destroy();
+                getTable();
+            }); 
+             $('#exampleFormControlSelect4').on('change', function() {
+            	 var t = $('#dataTable').DataTable();
+                 t.destroy();
+            	 getTable();
             }); 
 
         });
@@ -557,36 +627,48 @@
 
                             
                            
+                           
+                           <div class="form-inline"> 
+                                <div class="form-group mx-sm-3 mb-2">
+                                    <label for="exampleFormControlSelect3">년도</label>
+                                </div>
+                                <div class="form-group mx-sm-3 mb-2">
+                                    <select class="form-control" id="exampleFormControlSelect3">
+										<option>2019</option>
+										<option>2018</option>
+										<option>2017</option>
+										<option>2016</option>
+										<option>2015</option>
+										<option>2014</option>
+									</select>
+                                </div>
+                                <div class="form-group mx-sm-3 mb-2">
+                                    <label for="exampleFormControlSelect4">분기</label>
+                                </div>
+                                <div class="form-group mx-sm-3 mb-2">
+                                    <select class="form-control" id="exampleFormControlSelect4">
+										<option>1</option>
+									</select>
+                                </div>
+                                
+                            </div>
                             <!-- DataTales Example -->
           <div class="card shadow mb-4">
             <div class="card-header py-3">
-              <h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
+              <h6 class="m-0 font-weight-bold text-primary">분기별 자치구 변화지표</h6>
             </div>
             <div class="card-body">
               <div class="table-responsive">
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                   <thead>
                     <tr>
-                      <th>연도</th>
-                      <th>분기</th>
-                      <th>자치구</th>
-                      <th>변화지표</th>
+                      <th>연도 ↕</th>
+                      <th>분기 ↕</th>
+                      <th>자치구 ↕</th>
+                      <th>변화지표 ↕</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    <tr>
-                      <td>Tiger Nixon</td>
-                      <td>System Architect</td>
-                      <td>Edinburgh</td>
-                      <td>61</td>
-                    </tr>
-                    <tr>
-                      <td>Garrett Winters</td>
-                      <td>Accountant</td>
-                      <td>Tokyo</td>
-                      <td>63</td>
-                    </tr>
-                  </tbody>
+                  
                 </table>
               </div>
             </div>

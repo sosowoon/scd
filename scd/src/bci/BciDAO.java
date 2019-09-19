@@ -27,7 +27,6 @@ public class BciDAO {
 			dto.setCi(rs.getString(6));
 			dto.setCiname(rs.getString(7));
 		}
-//		System.out.println(gu + "=>" + dto.getCi() + " // " + dto.getCiname());
 		ps.close();
 		con.close();
 		return dto;
@@ -41,7 +40,7 @@ public class BciDAO {
 		ps.setInt(1	, year);
 		ps.setInt(2, quarter);
 		ResultSet rs = ps.executeQuery();
-		if(rs.next()) {
+		while(rs.next()) {
 			BciDTO dto = new BciDTO();
 			dto.setBciid(rs.getInt(1));
 			dto.setYear(rs.getInt(2));
@@ -52,7 +51,6 @@ public class BciDAO {
 			dto.setCiname(rs.getString(7));
 			list.add(dto);
 		}
-//		System.out.println(gu + "=>" + dto.getCi() + " // " + dto.getCiname());
 		ps.close();
 		con.close();
 		return list;
