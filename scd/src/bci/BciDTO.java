@@ -8,8 +8,36 @@ public class BciDTO {
 	String sigungucodename;
 	String ci;
 	String ciname;
+	int obma;
+	int cbma;
+	int sosma;
+	int scsma;
 	public int getBciid() {
 		return bciid;
+	}
+	public int getObma() {
+		return obma;
+	}
+	public void setObma(int obma) {
+		this.obma = obma;
+	}
+	public int getCbma() {
+		return cbma;
+	}
+	public void setCbma(int cbma) {
+		this.cbma = cbma;
+	}
+	public int getSosma() {
+		return sosma;
+	}
+	public void setSosma(int sosma) {
+		this.sosma = sosma;
+	}
+	public int getScsma() {
+		return scsma;
+	}
+	public void setScsma(int scsma) {
+		this.scsma = scsma;
 	}
 	public void setBciid(int bciid) {
 		this.bciid = bciid;

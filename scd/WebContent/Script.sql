@@ -22,6 +22,14 @@ create table Business_change_indicators(
 	ciname varchar(30)
 );
 
+alter table Business_change_indicators add OBMA integer(30);
+alter table Business_change_indicators add CBMA integer(30);
+alter table Business_change_indicators add SOSMA integer(30);
+alter table Business_change_indicators add SCSMA integer(30);
+
+desc Business_change_indicators;
+delete from Business_change_indicators;
+
 drop table Business_change_indicators;
 
 select * from Business_change_indicators;
@@ -30,7 +38,7 @@ select * from Business_change_indicators;
 select * from Business_change_indicators where year=2019 and quarter=1 and sigungucodename='°­µ¿±¸';
 select * from Business_change_indicators where year=2019 and quarter=1;
 
-
+select year, quarter, SOSMA, SCSMA from Business_change_indicators group by year, quarter;
 
 
 
