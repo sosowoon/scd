@@ -1,5 +1,3 @@
-console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-
 // Set new default font family and font color to mimic Bootstrap's default
 // styling
 		Chart.defaults.global.defaultFontFamily = 'Nunito',
@@ -32,11 +30,11 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 // DB에서 값 가져오기
 var xArry = [];
 var yArry = [];
+var year_quarter = [];
 $.ajax({
 	url : "getchart.jsp",
 	dataType : "json",
 	success : function(result) {
-		console.log("result.length=>" + result.length)
 
 		if (result.length > 0) {
 			$(result).each(function(i, val) {
@@ -44,13 +42,10 @@ $.ajax({
 				var quarter = val.quarter;
 				var sosma = val.sosma;
 				var scsma = val.scsma;
-				console.log("sosma=>" + sosma)
-				console.log("scsma=>" + scsma)
 
 				xArry.push(scsma);
 				yArry.push(sosma);
-				console.log("!xArry.length=>" + xArry.length)
-				console.log("!yArry.length=>" + yArry.length)
+				year_quarter.push(year + "." + quarter);
 			});
 		}
 		drawBarChart();
@@ -62,87 +57,93 @@ function drawBarChart() {
 	// Bar Chart Example
 	var ctx = document.getElementById("myBarChart");
 
-	var myBarChart = new Chart(
-			ctx,
-			{
-				type : 'scatter',
-				data : {
-					labels : xArry,
-					datasets : [ {
-						label : "Revenue",
-						backgroundColor : "#4e73df",
-						hoverBackgroundColor : "#2e59d9",
-						borderColor : "#4e73df",
-						data : yArry,
-					} ],
-				},
-				options : {
-					maintainAspectRatio : false,
-					layout : {
-						padding : {
-							left : 10,
-							right : 25,
-							top : 25,
-							bottom : 0
-						}
-					},
-					scales : {
-						xAxes : [ {
-							time : {
-								unit : 'month'
-							},
-							gridLines : {
-								display : false,
-								drawBorder : false
-							},
-							ticks : {
-								maxTicksLimit : 6
-							},
-							maxBarThickness : 25,
-						} ],
-						yAxes : [ {
-							ticks : {
-								min : 0,
-								max : 150,
-								maxTicksLimit : 5,
-								padding : 10,
-								// Include a dollar sign in the ticks
-								callback : function(value, index, values) {
-									return '$' + number_format(value);
-								}
-							},
-							gridLines : {
-								color : "rgb(234, 236, 244)",
-								zeroLineColor : "rgb(234, 236, 244)",
-								drawBorder : false,
-								borderDash : [ 2 ],
-								zeroLineBorderDash : [ 2 ]
-							}
-						} ],
-					},
-					legend : {
-						display : false
-					},
-					tooltips : {
-						titleMarginBottom : 10,
-						titleFontColor : '#6e707e',
-						titleFontSize : 14,
-						backgroundColor : "rgb(255,255,255)",
-						bodyFontColor : "#858796",
-						borderColor : '#dddfeb',
-						borderWidth : 1,
-						xPadding : 15,
-						yPadding : 15,
-						displayColors : false,
-						caretPadding : 10,
-						callbacks : {
-							label : function(tooltipItem, chart) {
-								var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label
-										|| '';
-								return datasetLabel + number_format(tooltipItem.yLabel);
-							}
-						}
-					},
+	var myBarChart = new Chart(ctx, {
+		type : 'line',
+		data : {
+			labels : xArry,
+			datasets : [ {
+				label : year_quarter,
+				hoverBackgroundColor : "#2e59d9",
+				borderColor : "#4e73df",
+				data : yArry,
+			} ],
+		},
+		options : {
+			maintainAspectRatio : false,
+			layout : {
+				padding : {
+					left : 10,
+					right : 25,
+					top : 25,
+					bottom : 0
 				}
-			});
+			},
+			scales : {
+				xAxes : [ {
+					time : {
+						unit : 'month'
+					},
+					gridLines : {
+						display : false,
+						drawBorder : false
+					},
+					ticks : {
+						maxTicksLimit : 6
+					},
+					maxBarThickness : 25,
+					scaleLabel : {
+						display : true,
+						labelString : "서울_폐업_영업_개월_평균"
+					}
+				} ],
+				yAxes : [ {
+					ticks : {
+						min : 0,
+						max : 150,
+						maxTicksLimit : 5,
+						padding : 10
+					},
+					gridLines : {
+						color : "rgb(234, 236, 244)",
+						zeroLineColor : "rgb(234, 236, 244)",
+						drawBorder : false,
+						borderDash : [ 2 ],
+						zeroLineBorderDash : [ 2 ]
+					},
+					scaleLabel : {
+						display : true,
+						labelString : "서울_운영_영업_개월_평균"
+					}
+				} ],
+			},
+			legend : {
+				display : false
+			},
+			tooltips : {
+				backgroundColor : "rgb(255,255,255)",
+				bodyFontColor : "#858796",
+				borderColor : '#dddfeb',
+				borderWidth : 1,
+				xPadding : 15,
+				yPadding : 15,
+				displayColors : false,
+				caretPadding : 10,
+				callbacks : {
+					title : function(tooltipItem, data) {
+						var datasetLabel = year_quarter[tooltipItem.index]
+								|| '';
+						return datasetLabel
+					},
+					label : function(tooltipItem, chart) {
+						var datasetLabel = year_quarter[tooltipItem.index]
+								|| '';
+
+						return "분기:" + datasetLabel + "=>운영평균개월:" + number_format(tooltipItem.yLabel)
+								+ ", 폐업평균개월:"
+								+ number_format(tooltipItem.xLabel);
+					}
+				}
+			},
+		}
+	});
 }
