@@ -104,9 +104,35 @@ INSERT INTO scd.sellcategories (`SellCategoryCode`,`SellCategoryName`) VALUES
 
 
 
+select `commercialDistrictCode`,`commercialDistrictName`,latitude,longitude from commercialdistricts;
+select `SellCategoryCode`,`SellCategoryName` from sellcategories;
+select opcl_no, `SellCatrgoryCode`, `commercialDistrictCode`, year, quarter, op, cl  from opcl; 
 
+SELECT * FROM product, stock WHERE product.product_no = stock.product_no;
+SELECT * FROM commercialdistricts, sellcategories, opcl 
+	WHERE commercialdistricts.commercialDistrictCode = opcl.commercialDistrictCode 
+	and sellcategories.SellCategoryCode = opcl.SellCategoryCode;
 
+select c.CommercialDistrictName, s.Year, s.Quarter, d.SellCategoryName, s.SellAmount 
+	from sellamounts s 
+		LEFT OUTER JOIN commercialdistricts c on s.CommercialDistrictCode = c.CommercialDistrictCode 
+		left join sellcategories d on s.SellCategoryCode = d.SellCategoryCode 
+	where Year = 2017 and Quarter = 1 and SellCategoryName = '한식음식점' 
+	order by 'SellAmount' desc limit 10
+	
+select c.commercialDistrictCode, c.commercialDistrictName, o.Year, o.Quarter, d.sellCategoryName, o.op, o.cl, c.latitude, c.longitude
+	from opcl o 
+		LEFT OUTER JOIN commercialdistricts c on o.commercialDistrictCode = c.commercialDistrictCode 
+		left join sellcategories d on o.SellCatrgoryCode = d.SellCategoryCode
+	where o.year = 2017 and o.quarter = 1 and d.SellCategoryName = '한식음식점'
+	order by o.op desc limit 5;
 
+select c.commercialDistrictCode, c.commercialDistrictName, o.Year, o.Quarter, d.sellCategoryName, o.op, o.cl, c.latitude, c.longitude
+	from opcl o 
+		LEFT OUTER JOIN commercialdistricts c on o.commercialDistrictCode = c.commercialDistrictCode 
+		left join sellcategories d on o.SellCatrgoryCode = d.SellCategoryCode
+	where o.year = 2017 and o.quarter = 1 and d.SellCategoryName = '한식음식점'
+	order by o.cl desc limit 5;
 
 
 

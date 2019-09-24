@@ -2,8 +2,7 @@
 <html lang="en">
 
 <head>
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=25c2169aac8a58a65838e6c0bc9639e8"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -11,27 +10,6 @@
     <meta name="author" content="">
 
     <title>SB Admin 2 - Charts</title>
-    <style>
-        .area {
-            position: absolute;
-            background: #fff;
-            border: 1px solid #888;
-            border-radius: 3px;
-            font-size: 12px;
-            top: -5px;
-            left: 15px;
-            padding: 2px;
-        }
-        
-        .info {
-            font-size: 12px;
-            padding: 5px;
-        }
-        
-        .info .title {
-            font-weight: bold;
-        }
-    </style>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -39,257 +17,200 @@
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
+
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=25c2169aac8a58a65838e6c0bc9639e8"></script>
+
+    <script type="text/javascript" src="js/jquery-3.4.1.js"></script>
     <script type="text/javascript">
-        function getpolygon() {
-            //행정구역 구분
-            $.getJSON("resource/test1234.geojson", function(geojson) {
-                var data = geojson.features;
-                var coordinates = []; // 좌표 저장할 배열
-                var name = ''; // 행정 구 이름
+        $(function() {
+            // Set new default font family and font color to mimic Bootstrap's default styling
+            Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+            Chart.defaults.global.defaultFontColor = '#858796';
 
-                $.each(data, function(index, val) {
-                    coordinates = val.geometry.coordinates;
-                    name = val.properties.name;
-                    // 지도에 영역데이터를 폴리곤으로 표시합니다 
-                    var gucolor = getColor(name);
-                    /* 	console.log('name: ' + name);
-                    	console.log('gucolor: ' + gucolor); */
-                    displayArea(coordinates, name, gucolor);
-                })
-            })
-            var polygons = [];
-            var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
-                mapOption = {
-                    center: new kakao.maps.LatLng(37.566826, 126.9786567), // 지도의 중심좌표
-                    level: 9
-                        // 지도의 확대 레벨
-                };
-            var map = new kakao.maps.Map(mapContainer, mapOption),
-                customOverlay = new kakao.maps.CustomOverlay({}),
-                infowindow = new kakao.maps.InfoWindow({
-                    removable: true
-                });
-            // 다각형을 생성하고 이벤트를 등록하는 함수입니다
-            function displayArea(coordinates, name, gucolor) {
-
-                var path = []; //폴리곤 그려줄 path
-                var points = []; //중심좌표 구하기 위한 지역구 좌표들
-                $.each(coordinates[0], function(index, coordinate) {
-                        $.each(coordinate, function(i, coordinateData) {
-                            var point = new Object();
-                            point.x = coordinateData[1];
-                            point.y = coordinateData[0];
-                            points.push(point);
-                            path.push(new kakao.maps.LatLng(coordinateData[1],
-                                coordinateData[0]));
-                        })
-                    })
-                    //다각형 생성
-                    /* 		console.log("map: " + map)
-                     console.log("path: " + path) */
-                var polygon = new kakao.maps.Polygon({
-                    map: map, // 다각형을 표시할 지도 객체
-                    path: path,
-                    strokeWeight: 1,
-                    strokeColor: '#FFFFFF',
-                    strokeOpacity: 0.8,
-                    fillColor: gucolor,
-                    fillOpacity: 0.6
-                });
-                polygons.push(polygon); //폴리곤 제거하기 위한 배열
-                // 다각형에 mouseover 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 변경합니다 
-                // 지역명을 표시하는 커스텀오버레이를 지도위에 표시합니다
-                kakao.maps.event.addListener(polygon, 'mouseover', function(
-                    mouseEvent) {
-                    polygon.setOptions({
-                        fillColor: gucolor,
-                        fillOpacity: 0.8
-                    });
-                    var ciname = '';
-                    if (gucolor == '#1DDB16') {
-                        ciname = '<img alt="다이나믹" src="img/다이나믹.png"> 다이나믹'
-                    } else if (gucolor == '#FFE400') {
-                        ciname = '<img alt="확장" src="img/확장.png"> 상권확장'
-                    } else if (gucolor == '#FF8224') {
-                        ciname = '<img alt="축소" src="img/축소.png"> 상권축소'
-                    } else {
-                        ciname = '<img alt="정체" src="img/정체.png"> 상권정체'
-                    }
-                    customOverlay.setContent('<div class="area">' + name + ' : ' +
-                        ciname + '</div>');
-
-                    customOverlay.setPosition(mouseEvent.latLng);
-                    customOverlay.setMap(map);
-                });
-
-                // 다각형에 mousemove 이벤트를 등록하고 이벤트가 발생하면 커스텀 오버레이의 위치를 변경합니다 
-                kakao.maps.event.addListener(polygon, 'mousemove', function(
-                    mouseEvent) {
-
-                    customOverlay.setPosition(mouseEvent.latLng);
-                });
-
-                // 다각형에 mouseout 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 원래색으로 변경합니다
-                // 커스텀 오버레이를 지도에서 제거합니다 
-                kakao.maps.event.addListener(polygon, 'mouseout', function() {
-                    polygon.setOptions({
-                        fillColor: gucolor,
-                        fillOpacity: 0.6
-                    });
-                    customOverlay.setMap(null);
-                });
-
-                // 다각형에 click 이벤트를 등록하고 이벤트가 발생하면 다각형의 이름과 면적을 인포윈도우에 표시합니다 
-                kakao.maps.event.addListener(polygon, 'click',
-                    function(mouseEvent) {
-                        var content = '<div class="info">' +
-                            '   <div class="title">' + name + '</div>' +
-                            '   <div class="size">총 면적 : 약 ' +
-                            Math.floor(polygon.getArea()) +
-                            ' m<sup>2</sup></area>' + '</div>';
-
-                        infowindow.setContent(content);
-                        infowindow.setPosition(mouseEvent.latLng);
-                        infowindow.setMap(map);
-                    });
+            function number_format(number, decimals, dec_point, thousands_sep) {
+                // *     example: number_format(1234.56, 2, ',', ' ');
+                // *     return: '1 234,56'
+                number = (number + '').replace(',', '').replace(' ', '');
+                var n = !isFinite(+number) ? 0 : +number,
+                    prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+                    sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+                    dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+                    s = '',
+                    toFixedFix = function(n, prec) {
+                        var k = Math.pow(10, prec);
+                        return '' + Math.round(n * k) / k;
+                    };
+                // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+                s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+                if (s[0].length > 3) {
+                    s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+                }
+                if ((s[1] || '').length < prec) {
+                    s[1] = s[1] || '';
+                    s[1] += new Array(prec - s[1].length + 1).join('0');
+                }
+                return s.join(dec);
             }
+            $('#yearSelection').on('change', function() {
+                getDataPerOption();
+            });
+            $('#quarterSelection').on('change', function() {
+                getDataPerOption();
+            });
+            $('#sellCategorySelection').on('change', function() {
+                getDataPerOption();
+            });
+            getDataPerOption();
+        });
 
-        }
+        function getDataPerOption() {
+            var container = document.getElementById('map');
+            var options = {
+                center: new kakao.maps.LatLng(37.5665, 126.9780),
+                level: 9
+            };
 
-        function getColor(gu) {
-            var year = $("#exampleFormControlSelect1").val();
-            var quarter = $("#exampleFormControlSelect2").val();
-            var color = '';
+            var map = new kakao.maps.Map(container, options);
+            var imageSrc = "http://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
+            var markerPositions = [];
+
+            var year = $("#yearSelection option:selected").val();
+            var quarter = $("#quarterSelection option:selected").val();
+            var sellCategoryName = $("#sellCategorySelection option:selected").val();
             $.ajax({
-                url: "getcolor.jsp",
+                url: "dataGetter2.jsp",
                 data: {
                     year: year,
                     quarter: quarter,
-                    gu: gu
-                },
-                async: false,
-                success: function(result) {
-                    var trimResult = $.trim(result);
-                    if (trimResult == 'LL') {
-                        color = '#1DDB16';
-                    } else if (trimResult == 'LH') {
-                        color = '#FFE400';
-                    } else if (trimResult == 'HL') {
-                        color = '#FF8224';
-                    } else if (trimResult == 'HH') {
-                        color = '#FF0000';
-                    }
-                }
-            });
-            return color;
-        }
-
-        function itemChange() {
-
-            var year_quarter = ['1', '2', '3', '4'];
-            var year_quarter2 = ['1'];
-
-            var selectItem = $("#exampleFormControlSelect1").val();
-
-            var changeItem;
-
-            if (selectItem == '2019') {
-                changeItem = year_quarter2;
-            } else {
-                changeItem = year_quarter;
-            }
-
-            $('#exampleFormControlSelect2').empty();
-
-            for (var count = 0; count < changeItem.length; count++) {
-                var option = $("<option>" + changeItem[count] + "</option>");
-                $('#exampleFormControlSelect2').append(option);
-            }
-
-        }
-
-        function itemChange2() {
-
-            var year_quarter = ['1', '2', '3', '4'];
-            var year_quarter2 = ['1'];
-
-            var selectItem = $("#exampleFormControlSelect3").val();
-
-            var changeItem;
-
-            if (selectItem == '2019') {
-                changeItem = year_quarter2;
-            } else {
-                changeItem = year_quarter;
-            }
-
-            $('#exampleFormControlSelect4').empty();
-
-            for (var count = 0; count < changeItem.length; count++) {
-                var option = $("<option>" + changeItem[count] + "</option>");
-                $('#exampleFormControlSelect4').append(option);
-            }
-
-        }
-
-        function getTable() {
-            var year = $("#exampleFormControlSelect3").val();
-            var quarter = $("#exampleFormControlSelect4").val();
-            $.ajax({
-                url: "gettable.jsp",
-                data: {
-                    year: year,
-                    quarter: quarter
+                    sellCategoryName: sellCategoryName
                 },
                 dataType: "json",
                 success: function(result) {
-                    var t = $('#dataTable').DataTable();
-                    if (result.length > 0) {
-                        $(result).each(
-                            function(i, val) {
-                                var year = val.year;
-                                var quarter = val.quarter;
-                                var sigungucodename = val.sigungucodename;
-                                var ciname = val.ciname;
-                                t.row.add(
-                                    [year, quarter, sigungucodename,
-                                        ciname
-                                    ]).draw(false);
-                            });
+                    $("#rankTable").empty();
+                    var markerTitle = [];
+                    var labelsCustom = [];
+                    var dataCustom = [];
+                    var dataCustom2 = [];
+                    $(result).each(function(i, val) {
+                        $("#rankTable").append("<tr><td>" + val.commercialDistrictName + "</td>" +
+                            "<td>" + val.year + "</td>" +
+                            "<td>" + val.quarter + "</td>" +
+                            "<td>" + val.sellCategoryName + "</td>" +
+                            "<td>" + val.op + "</td>" +
+                            "<td>" + val.cl + "</td> </tr>")
+
+                        markerPositions[i] = new kakao.maps.LatLng(val.latitude, val.longitude);
+                        markerTitle[i] = (i + 1) + "위=> " + val.commercialDistrictName;
+                        labelsCustom.push(val.commercialDistrictName);
+                        dataCustom.push(val.op);
+                        dataCustom2.push(val.cl);
+                    });
+                    for (var i = 0; i < result.length; i++) {
+                        var imageSize = new kakao.maps.Size(24, 35);
+                        var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
+                        var marker = new kakao.maps.Marker({
+                            map: map,
+                            title: markerTitle[i],
+                            position: markerPositions[i],
+                            image: markerImage
+                        });
                     }
+
+                    // Bar Chart Example
+                    var ctx = document.getElementById("barChart");
+                    $("#ctx").empty();
+                    var barChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labelsCustom,
+                            datasets: [{
+                                label: "개업률",
+                                backgroundColor: "#4e73df",
+                                hoverBackgroundColor: "#2e59d9",
+                                borderColor: "#4e73df",
+                                borderWidth: 1,
+                                data: dataCustom
+                            }, {
+                                label: "폐업률",
+                                backgroundColor: "#FF5E00",
+                                hoverBackgroundColor: "#CC723D",
+                                borderColor: "#FFD8D8",
+                                borderWidth: 1,
+                                data: dataCustom2
+                            }]
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            layout: {
+                                padding: {
+                                    left: 10,
+                                    right: 25,
+                                    top: 25,
+                                    bottom: 0
+                                }
+                            },
+                            scales: {
+                                xAxes: [{
+                                    time: {
+                                        unit: 'BGmonth'
+                                    },
+                                    gridLines: {
+                                        display: false,
+                                        drawBorder: false
+                                    },
+                                    ticks: {
+                                        maxTicksLimit: 6
+                                    },
+                                    maxBarThickness: 25,
+                                }],
+                                yAxes: [{
+                                    ticks: {
+                                        min: 0,
+                                        max: 100,
+                                        maxTicksLimit: 5,
+                                        padding: 10,
+                                        // Include a dollar sign in the ticks
+                                        callback: function(value, index, values) {
+                                            return number_format(value) + '%';
+                                        }
+                                    },
+                                    gridLines: {
+                                        color: "rgb(234, 236, 244)",
+                                        zeroLineColor: "rgb(234, 236, 244)",
+                                        drawBorder: false,
+                                        borderDash: [2],
+                                        zeroLineBorderDash: [2]
+                                    }
+                                }],
+                            },
+                            legend: {
+                                display: false
+                            },
+                            tooltips: {
+                                titleMarginBottom: 10,
+                                titleFontColor: '#6e707e',
+                                titleFontSize: 14,
+                                backgroundColor: "rgb(255,255,255)",
+                                bodyFontColor: "#858796",
+                                borderColor: '#dddfeb',
+                                borderWidth: 1,
+                                xPadding: 15,
+                                yPadding: 15,
+                                displayColors: false,
+                                caretPadding: 10,
+                                callbacks: {
+                                    label: function(tooltipItem, chart) {
+                                        var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                                        return datasetLabel + ': ' + number_format(tooltipItem.yLabel) + '%';
+                                    }
+                                }
+                            },
+                        }
+                    });
                 }
             });
-            $('#dataTable').DataTable({
-                scrollY: '50vh',
-                scrollCollapse: true,
-                paging: true
-            });
         }
-        $(function() {
-            getpolygon();
-            getTable();
-            $('#exampleFormControlSelect1').on('change', function() {
-                itemChange();
-                getpolygon();
-            });
-            $('#exampleFormControlSelect2').on('change', function() {
-                getpolygon();
-            });
-            $('#exampleFormControlSelect3').on('change', function() {
-                itemChange2();
-                var t = $('#dataTable').DataTable();
-                t.destroy();
-                getTable();
-            });
-            $('#exampleFormControlSelect4').on('change', function() {
-                var t = $('#dataTable').DataTable();
-                t.destroy();
-                getTable();
-            });
-
-        });
     </script>
-
 </head>
 
 <body id="page-top">
@@ -373,7 +294,7 @@
 
             <!-- Nav Item - Charts -->
             <li class="nav-item active">
-                <a class="nav-link" href="Business_change_indicators.html"> <i class="fas fa-fw fa-chart-area"></i> <span>자치구별 상권 변화 지표</span></a>
+                <a class="nav-link" href="charts.html"> <i class="fas fa-fw fa-chart-area"></i> <span>Charts</span></a>
             </li>
 
             <!-- Nav Item - Tables -->
@@ -408,17 +329,85 @@
 						<i class="fa fa-bars"></i>
 					</button>
 
-                    <!-- Topbar Search -->
-                    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                        <div class="input-group">
-                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-									<i class="fas fa-search fa-sm"></i>
-								</button>
-                            </div>
+
+                    <div class="form-inline">
+                        <div class="form-group mx-sm-3 mb-2">
+                            <label for="exampleFormControlSelect1">연도</label>
                         </div>
-                    </form>
+                        <div class="form-group mx-sm-3 mb-2">
+                            <select class="form-control" id="yearSelection">
+								<option>2019</option>
+								<option>2018</option>
+								<option>2017</option>
+								<option>2016</option>
+								<option>2015</option>
+								<option>2014</option>
+							</select>
+                        </div>
+                        <div class="form-group mx-sm-3 mb-2">
+                            <label for="exampleFormControlSelect2">분기</label>
+                        </div>
+                        <div class="form-group mx-sm-3 mb-2">
+                            <select class="form-control" id="quarterSelection">
+								<option>1</option>
+								<option>2</option>
+								<option>3</option>
+								<option>4</option>
+							</select>
+                        </div>
+                        <div class="form-group mx-sm-3 mb-2">
+                            <label for="exampleFormControlSelect1">업종</label>
+                        </div>
+                        <div class="form-group mx-sm-3 mb-2">
+                            <select class="form-control" id="sellCategorySelection">
+								<option>한식음식점</option>
+								<option>중식음식점</option>
+								<option>일식음식점</option>
+								<option>양식음식점</option>
+								<option>분식전문점</option>
+								<option>패스트푸드점</option>
+								<option>치킨전문점</option>
+								<option>제과점</option>
+								<option>커피·음료</option>
+								<option>호프·간이주점</option>
+								<option>일반교습학원</option>
+								<option>외국어학원</option>
+								<option>예체능학원</option>
+								<option>치과의원</option>
+								<option>한의원</option>
+								<option>일반의원</option>
+								<option>가전제품수리</option>
+								<option>부동산중개업</option>
+								<option>숙박업</option>
+								<option>노래방</option>
+								<option>PC방</option>
+								<option>당구장</option>
+								<option>세탁소(가정)</option>
+								<option>스포츠클럽</option>
+								<option>자동차수리·세차</option>
+								<option>두발미용업</option>
+								<option>네일숍</option>
+								<option>피부관리실</option>
+								<option>슈퍼마켓</option>
+								<option>편의점</option>
+								<option>컴퓨터·주변기기</option>
+								<option>핸드폰</option>
+								<option>식료품</option>
+								<option>건강보조식품</option>
+								<option>의류점</option>
+								<option>패션용품</option>
+								<option>의약·의료용품</option>
+								<option>서적·문구</option>
+								<option>화장품</option>
+								<option>오락·운동</option>
+								<option>섬유제품</option>
+								<option>화초·애완</option>
+								<option>가구·가전</option>
+								<option>주방·가정용품</option>
+								<option>통신판매업</option>
+							</select>
+                        </div>
+                    </div>
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
@@ -569,8 +558,11 @@
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h4 mb-2 text-gray-800">자치구별 상권변화 지표</h1>
-
+                    <!--  <h1 class="h3 mb-2 text-gray-800">Charts</h1>
+                    <p class="mb-4">
+                        Chart.js is a third party plugin that is used to generate the charts in this theme. The charts below have been customized - for further customization options, please visit the <a target="_blank" href="https://www.chartjs.org/docs/latest/">official Chart.js
+							documentation</a>.
+                    </p> -->
 
                     <!-- Content Row -->
                     <div class="row">
@@ -578,116 +570,44 @@
                         <div class="col-xl-8 col-lg-7">
 
                             <!-- Area Chart -->
-                            <!-- <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Area Chart</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="chart-area">
-                                        <canvas id="myAreaChart"></canvas>
-                                    </div>
-                                    <hr> Styling for the area chart can be found in the
-                                    <code>/js/demo/chart-area-demo.js</code> file.
-                                </div>
-                            </div> -->
-                            <div class="form-inline">
-                                <div class="form-group mx-sm-3 mb-2">
-                                    <label for="exampleFormControlSelect1">년도</label>
-                                </div>
-                                <div class="form-group mx-sm-3 mb-2">
-                                    <select class="form-control" id="exampleFormControlSelect1">
-										<option>2019</option>
-										<option>2018</option>
-										<option>2017</option>
-										<option>2016</option>
-										<option>2015</option>
-										<option>2014</option>
-									</select>
-                                </div>
-                                <div class="form-group mx-sm-3 mb-2">
-                                    <label for="exampleFormControlSelect2">분기</label>
-                                </div>
-                                <div class="form-group mx-sm-3 mb-2">
-                                    <select class="form-control" id="exampleFormControlSelect2">
-										<option>1</option>
-									</select>
-                                </div>
+                            <!-- 							<div class="card shadow mb-4">
+								<div class="card-header py-3">
+									<h6 class="m-0 font-weight-bold text-primary">Area Chart</h6>
+								</div>
+								<div class="card-body">
+									<div class="chart-area">
+										<canvas id="myAreaChart"></canvas>
+									</div>
+									<hr>
+									Styling for the area chart can be found in the
+									<code>/js/demo/chart-area-demo.js</code>
+									file.
+								</div>
+							</div> -->
 
-                            </div>
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Seoul Map</h6>
-                                </div>
-                                <div class="chart-body">
-
-                                    <div id="map" class="card-body" style="height: 500px"></div>
-
-                                </div>
-                            </div>
-
-
-
-
-                            <div class="form-inline">
-                                <div class="form-group mx-sm-3 mb-2">
-                                    <label for="exampleFormControlSelect3">년도</label>
-                                </div>
-                                <div class="form-group mx-sm-3 mb-2">
-                                    <select class="form-control" id="exampleFormControlSelect3">
-										<option>2019</option>
-										<option>2018</option>
-										<option>2017</option>
-										<option>2016</option>
-										<option>2015</option>
-										<option>2014</option>
-									</select>
-                                </div>
-                                <div class="form-group mx-sm-3 mb-2">
-                                    <label for="exampleFormControlSelect4">분기</label>
-                                </div>
-                                <div class="form-group mx-sm-3 mb-2">
-                                    <select class="form-control" id="exampleFormControlSelect4">
-										<option>1</option>
-									</select>
-                                </div>
-
-                            </div>
                             <!-- DataTales Example -->
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">분기별 자치구 변화지표</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">DataTables
+                                    </h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
-                                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <table class="table table-bordered" id="dataTable" width="30%" cellspacing="0">
                                             <thead>
                                                 <tr>
-                                                    <th>연도 ↕</th>
-                                                    <th>분기 ↕</th>
-                                                    <th>자치구 ↕</th>
-                                                    <th>변화지표 ↕</th>
+                                                    <th>상권</th>
+                                                    <th>연도</th>
+                                                    <th>분기</th>
+                                                    <th>업종</th>
+                                                    <th>개업률</th>
+                                                    <th>폐업률</th>
                                                 </tr>
                                             </thead>
+                                            <tbody id="rankTable">
 
+                                            </tbody>
                                         </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- ol-xl-8 col-lg-7 -->
-
-
-                        <!-- 이미지-->
-
-                        <div class="col-xl-4 col-lg-5">
-                            <!-- Illustrations -->
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">상권변화지표상세</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="text-center">
-                                        <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;" src="img/bcgMatrix_htm.png" alt="">
                                     </div>
                                 </div>
                             </div>
@@ -695,18 +615,31 @@
                             <!-- Bar Chart -->
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">서울시</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">Map</h6>
                                 </div>
                                 <div class="card-body">
+                                    <div id="map" class="card-body" style="height: 500px;"></div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Donut Chart -->
+                        <div class="col-xl-4 col-lg-5">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Dropdown -->
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Donut Chart</h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
                                     <div class="chart-bar">
-                                        <canvas id="myBarChart"></canvas>
+                                        <canvas id="barChart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- col-xl-4 col-lg-5 -->
-
 
                 </div>
                 <!-- /.container-fluid -->
@@ -765,15 +698,10 @@
 
     <!-- Page level plugins -->
     <script src="vendor/chart.js/Chart.min.js"></script>
-    <!-- Page level plugins -->
-    <script src="vendor/datatables/jquery.dataTables.min.js"></script>
-    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
     <!-- Page level custom scripts -->
-    <script src="js/demo/chart-bar-demo.js"></script>
-
-    <!-- Page level custom scripts -->
-    <script src="js/demo/datatables-demo.js"></script>
+    <script src="js/demo/chart-area-demo.js"></script>
+    <script src="js/demo/chart-pie-demo.js"></script>
 
 </body>
 
