@@ -5,12 +5,26 @@
 <%@page import="org.json.simple.JSONArray"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<jsp:useBean id="dto" class="bean.OpclDTO"></jsp:useBean>
-<jsp:setProperty property="*" name="dto" />
 <%
+	String year = request.getParameter("year");
+	String quarter = request.getParameter("quarter");
+	String sellCategoryName = request.getParameter("sellCategoryName");
+	String opcl = request.getParameter("opcl");
+	OpclDTO dto = new OpclDTO();
+	dto.setYear(Integer.parseInt(year));
+	dto.setQuarter(Integer.parseInt(quarter));
+	dto.setSellCategoryName(sellCategoryName);
+	
+
 	JSONArray data = new JSONArray();
 	OpclDAO dao = new OpclDAO();
-	ArrayList<OpclDTO> list = dao.selectTop5Opcl(dto);
+	ArrayList<OpclDTO> list;
+	if(opcl.equals("개업률")){
+		
+		list = dao.selectTop5Opcl(dto);
+	}else{
+		list = dao.selectTop5Opcl2(dto);
+	}
 	for (int i = 0; i < list.size() ; i++) {
 		JSONObject row = new JSONObject();
 		OpclDTO dto2 = list.get(i);

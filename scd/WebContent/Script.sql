@@ -107,6 +107,7 @@ INSERT INTO scd.sellcategories (`SellCategoryCode`,`SellCategoryName`) VALUES
 select `commercialDistrictCode`,`commercialDistrictName`,latitude,longitude from commercialdistricts;
 select `SellCategoryCode`,`SellCategoryName` from sellcategories;
 select opcl_no, `SellCatrgoryCode`, `commercialDistrictCode`, year, quarter, op, cl  from opcl; 
+select opcl_no, `SellCatrgoryCode`, `commercialDistrictCode`, year, quarter, op, cl  from opcl where commercialDistrictCode = 10004954; 
 
 SELECT * FROM product, stock WHERE product.product_no = stock.product_no;
 SELECT * FROM commercialdistricts, sellcategories, opcl 
@@ -124,7 +125,7 @@ select c.commercialDistrictCode, c.commercialDistrictName, o.Year, o.Quarter, d.
 	from opcl o 
 		LEFT OUTER JOIN commercialdistricts c on o.commercialDistrictCode = c.commercialDistrictCode 
 		left join sellcategories d on o.SellCatrgoryCode = d.SellCategoryCode
-	where o.year = 2017 and o.quarter = 1 and d.SellCategoryName = '한식음식점'
+	where o.year = 2017 and o.quarter = 1 and d.SellCategoryName = '제과점'
 	order by o.op desc limit 5;
 
 select c.commercialDistrictCode, c.commercialDistrictName, o.Year, o.Quarter, d.sellCategoryName, o.op, o.cl, c.latitude, c.longitude
@@ -134,5 +135,23 @@ select c.commercialDistrictCode, c.commercialDistrictName, o.Year, o.Quarter, d.
 	where o.year = 2017 and o.quarter = 1 and d.SellCategoryName = '한식음식점'
 	order by o.cl desc limit 5;
 
+create table members(
+	m_id varchar(30) not null primary key,
+	pw varchar(30) not null,
+	fname varchar(30) not null,
+	lname varchar(30) not null,
+	age int(30) not null,
+	gender varchar(30) not null
+);
+
+SELECT * FROM members WHERE m_id = 'test' and pw = '1234';
+
+select max(cl) from opcl;
+select max(op) from opcl;
 
 
+delete from members where m_id='test11';
+select * from members;
+
+
+insert into members values('1','1','1','1','1','1');
